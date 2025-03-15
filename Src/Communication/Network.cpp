@@ -18,7 +18,7 @@ bool g_Session;
 void Network::Send(const std::string& data)
 {
     std::cout << "Sending the data...\n";
-    int n = write(m_ClientSocket, data.c_str(), data.length());
+    write(m_ClientSocket, data.c_str(), data.length());
 }
 
 const std::string& Network::Read()

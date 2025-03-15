@@ -20,7 +20,7 @@
 # 
 # set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-set(CROSS_COMPILE "arm-linux-gnueabihf")
+set(CROSS_COMPILE "arm-none-linux-gnueabihf")
 
 set(CROSS_COMPILE_CC "${CROSS_COMPILE}-gcc")
 set(CROSS_COMPILE_CXX "${CROSS_COMPILE}-g++")

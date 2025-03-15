@@ -1,0 +1,53 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "Base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/Build/${presetName}"
+        },
+        {
+            "name": "Application-Base",
+            "inherits": ["Base"],
+            "hidden": true,
+            "binaryDir": "${sourceDir}/Build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/CMake/toolchain-arm-gcc.cmake"
+            }
+        },
+        {
+            "name": "Tests-Base",
+            "inherits": ["Base"],
+            "hidden": true,
+            "binaryDir": "${sourceDir}/Build/${presetName}",
+            "cacheVariables": {
+                "BUILD_TEST": "ON"
+            }
+        },
+        {
+            "name": "Application-Debug",
+            "inherits": [ "Application-Base" ],
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+        },
+        {
+            "name": "Application-Release",
+            "inherits": [ "Application-Base" ],
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        },
+        {
+            "name": "Tests-Debug",
+            "inherits": [ "Tests-Base" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+         }
+        },
+        {
+            "name": "Tests-Release",
+            "inherits": [ "Tests-Base" ],
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        }
+    ]
+}

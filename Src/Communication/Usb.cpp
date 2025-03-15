@@ -13,7 +13,8 @@ enum UsbMessageE
     REMOVE_SECTOR, ADD_SECTOR, SET_DIODE_HSV,
     SET_DIODE_RGB, SET_SECTOR_HSV, SET_SECTOR_RGB,
     SET_SECTOR_RAINBOW, SPAWN_DIODE, SET_ANIMATION_SPEED,
-    SET_ROLLING_EFFECT, SET_DIMMING_ENTIRE_EFFECT, MAX
+    SET_ROLLING_EFFECT, SET_DIMMING_ENTIRE_EFFECT,
+    SET_NO_ANIMATION, LED_STRIP_REQ, MAX
 };
 
 Usb::Usb(std::string devName)
@@ -82,7 +83,25 @@ void Usb::Send(const std::string& data)
 
 const std::string& Usb::Read()
 {
+    char buffer[512];
+    ssize_t num_bytes = read(m_SerialPort, buffer, 512);
 
+    if (num_bytes < 0)
+    {
+        std::cout << "Receive error" << std::endl;
+    }
+    else
+    {
+        buffer[511] = '\0';
+        std::cout << "Received " << num_bytes << " bytes: ";
+        for (int i = 6; i < num_bytes; i++)
+        {
+            std::cout << static_cast<int>(buffer[i]) << "-";
+        }
+        std::cout << "\n";
+    }
+    GetBuffer() = std::string(buffer, 512);
+    return GetBuffer();
 }
 
 const std::string& Usb::GetDevName() const
@@ -145,7 +164,7 @@ bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars)
 
     if (stoi(numbers[0]) == UsbMessageE::ADD_SECTOR)
     {
-        if (numbers.size() != 10)
+        if (numbers.size() != 6)
         {
             return false;
         }
@@ -154,7 +173,7 @@ bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars)
 
     if (stoi(numbers[0]) == UsbMessageE::SET_DIODE_HSV)
     {
-        if (numbers.size() != 9)
+        if (numbers.size() != 7)
         {
             return false;
         }
@@ -163,7 +182,7 @@ bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars)
 
     if (stoi(numbers[0]) == UsbMessageE::SET_DIODE_RGB)
     {
-        if (numbers.size() != 8)
+        if (numbers.size() != 6)
         {
             return false;
         }
@@ -233,7 +252,32 @@ bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars)
         return true;
     }
 
+    if (stoi(numbers[0]) == UsbMessageE::LED_STRIP_REQ)
+    {
+        if (numbers.size() != 1)
+        {
+            return false;
+        }
+        return true;
+    }
+
     return false;
+}
+
+void Usb::ReceiverThread(Usb& obj)
+{
+
+    //std::unique_lock<std::mutex> lock(g_Mutex);
+    while(1)
+    {
+        std::cout << "Received: "<< obj.Read() << std::endl;
+
+        // if we close the port
+        if (!g_Session)
+        {
+            break;
+        }
+    }
 }
 
 void Usb::SenderThread(Usb& obj)

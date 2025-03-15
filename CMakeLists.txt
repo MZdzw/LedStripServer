@@ -5,7 +5,7 @@ if(NOT BUILD_TEST)
     set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CMake/toolchain-arm-gcc.cmake)
 endif()
 
-project(LedsServer)
+project(LedStripServer)
 
 if(BUILD_TEST)
     enable_testing()

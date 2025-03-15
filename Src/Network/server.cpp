@@ -33,9 +33,11 @@ void ServerTCP::TcpHandlerThread()
         Usb usbObj(g_SerialName);
         std::thread receiveTcpThread(&Network::ReceiverThread, std::ref(obj));
         std::thread senderUsbThread(&Usb::SenderThread, std::ref(usbObj));
+        std::thread receiverUsbThread(&Usb::ReceiverThread, std::ref(usbObj));
 
         receiveTcpThread.join();
         senderUsbThread.join();
+        receiverUsbThread.join();
         std::cout << "End of process\n";
         break;
     }

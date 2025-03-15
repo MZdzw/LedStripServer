@@ -20,7 +20,7 @@ public:
     const std::string& GetDevName() const;
     bool TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars);
 
-
+    static void ReceiverThread(Usb& obj);
     static void SenderThread(Usb& obj);
 
 
