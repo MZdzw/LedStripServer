@@ -22,42 +22,40 @@ Usb::Usb(std::string devName)
     , m_DevName(devName)
     , m_SerialPort(open(m_DevName.c_str(), O_RDWR))
 {
-    // Sprawdź, czy otwarcie portu zakończyło się sukcesem
     if (m_SerialPort < 0) {
         std::cerr << "Serial port not opened." << std::endl;
         return;
     }
 
-    // Konfiguracja parametrów połączenia szeregowego
     struct termios tty;
     if (tcgetattr(m_SerialPort, &tty) != 0) {
         std::cerr << "Terminal parameters not provided." << std::endl;
         return;
     }
 
-    tty.c_cflag &= ~PARENB; // Brak parzystości
-    tty.c_cflag &= ~CSTOPB; // Jeden bit stopu
+    tty.c_cflag &= ~PARENB;
+    tty.c_cflag &= ~CSTOPB;
     tty.c_cflag &= ~CSIZE;
-    tty.c_cflag |= CS8;     // 8 bitów danych
-    tty.c_cflag &= ~CRTSCTS; // Wyłącz kontrolę przepływu sprzętowego
-    tty.c_cflag |= CREAD | CLOCAL; // Włącz odczyt i wyłącz kontrolę terminala
+    tty.c_cflag |= CS8;
+    tty.c_cflag &= ~CRTSCTS;
+    tty.c_cflag |= CREAD | CLOCAL;
 
-    // Ustaw prędkość transmisji na 9600 baud
     cfsetispeed(&tty, B9600);
     cfsetospeed(&tty, B9600);
 
-    // Ustawienia bez trybu kanonicznego (natychmiastowy odczyt danych)
     tty.c_lflag &= ~ICANON;
-    tty.c_lflag &= ~ECHO;   // Wyłącz echo
-    tty.c_lflag &= ~ECHOE;  // Wyłącz echo backspace
-    tty.c_lflag &= ~ISIG;   // Wyłącz obsługę sygnałów (Ctrl+C)
+    tty.c_lflag &= ~ECHO;
+    tty.c_lflag &= ~ECHOE;
+    tty.c_lflag &= ~ISIG;
 
-    // Wyłącz kontrolę przepływu programowego (XON/XOFF)
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);
-    tty.c_iflag &= ~(ICRNL | INLCR); // Wyłącz zamianę znaków CR/NL
+    tty.c_iflag &= ~(ICRNL | INLCR);
 
-    tty.c_oflag &= ~OPOST; // Wyłącz przetwarzanie wyjścia
+    tty.c_oflag &= ~OPOST;
 
+    // Turn on blocking mode (wait in read till the data come)
+    tty.c_cc[VMIN] = 1;
+    tty.c_cc[VTIME] = 0;
     // Zapisz ustawienia portu
     if (tcsetattr(m_SerialPort, TCSANOW, &tty) != 0) {
         std::cerr << "Terminal parameters not set." << std::endl;
@@ -86,15 +84,11 @@ const std::string& Usb::Read()
     char buffer[512];
     ssize_t num_bytes = read(m_SerialPort, buffer, 512);
 
-    if (num_bytes < 0)
-    {
-        std::cout << "Receive error" << std::endl;
-    }
-    else
+    if (num_bytes > 0)
     {
         buffer[511] = '\0';
-        std::cout << "Received " << num_bytes << " bytes: ";
-        for (int i = 6; i < num_bytes; i++)
+        std::cout << "Received: ";
+        for (int i = 0; i < num_bytes; i++)
         {
             std::cout << static_cast<int>(buffer[i]) << "-";
         }
@@ -109,7 +103,21 @@ const std::string& Usb::GetDevName() const
     return m_DevName;
 }
 
-bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars)
+void Usb::ChangeToNonBlocking()
+{
+    // Get flags and set nonblocking mode
+    int flags = fcntl(m_SerialPort, F_GETFL, 0);
+    fcntl(m_SerialPort, F_SETFL, flags | O_NONBLOCK);
+
+    // Get set attributes and turn on nonblocking mode
+    struct termios options;
+    tcgetattr(m_SerialPort, &options);
+    options.c_cc[VMIN] = 0;
+    options.c_cc[VTIME] = 0;
+    tcsetattr(m_SerialPort, TCSANOW, &options);
+}
+
+bool Usb::TranslateMsgFromNetworkToUsb(std::vector<std::string> &vars)
 {
     std::string& networkMessage = g_Msg;
 
@@ -270,7 +278,7 @@ void Usb::ReceiverThread(Usb& obj)
     //std::unique_lock<std::mutex> lock(g_Mutex);
     while(1)
     {
-        std::cout << "Received: "<< obj.Read() << std::endl;
+        obj.Read();
 
         // if we close the port
         if (!g_Session)
@@ -308,6 +316,7 @@ void Usb::SenderThread(Usb& obj)
         }
         if (!g_Session)
         {
+            obj.ChangeToNonBlocking();
             break;
         }
     }

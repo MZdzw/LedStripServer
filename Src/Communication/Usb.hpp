@@ -10,14 +10,20 @@ public:
     Usb(std::string devName);
     ~Usb()
     {
-        std::cout << "Closing the serial port\n";
-        close(m_SerialPort);
+        if (m_SerialPort >= 0)
+        {
+            std::cout << "Closing the serial port\n";
+            close(m_SerialPort);
+            m_SerialPort = -1;
+        }
     }
 
     void Send(const std::string& data) override;
     const std::string& Read() override;
 
     const std::string& GetDevName() const;
+    void ChangeToNonBlocking();
+
     bool TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars);
 
     static void ReceiverThread(Usb& obj);
