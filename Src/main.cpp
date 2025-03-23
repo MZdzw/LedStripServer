@@ -1,6 +1,6 @@
 #include <thread>
 #include "Peripherals/Gpio.hpp"
-#include "Network/server.hpp"
+#include "Server/server.hpp"
 
 #define LED_PATH "/sys/class/gpio/gpio60"
 
@@ -8,10 +8,10 @@
 int main(void)
 {
     // std::thread gpioThread(&BlinkingLEDThread);
-    std::thread tcpThreadsHandler(&ServerTCP::TcpHandlerThread);
+    std::thread serverThread(&Server::ServerThread);
 
     // gpioThread.join();
-    tcpThreadsHandler.join();
+    serverThread.join();
 
     return 0;
 }

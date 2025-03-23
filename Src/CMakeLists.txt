@@ -9,14 +9,16 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0")
 
 set(CMAKE_CXX_FLAGS "${CXX_WARNINGS}")
 
-set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/Interface
-             ${CMAKE_CURRENT_SOURCE_DIR}/Communication
-             ${CMAKE_CURRENT_SOURCE_DIR}/Common)
+set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/Interface/
+             ${CMAKE_CURRENT_SOURCE_DIR}/Communication/
+             ${CMAKE_CURRENT_SOURCE_DIR}/Common/
+             ${CMAKE_CURRENT_SOURCE_DIR}/Configurators/)
 
 set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/Peripherals/Gpio.cpp
-         ${CMAKE_CURRENT_SOURCE_DIR}/Network/server.cpp
-         ${CMAKE_CURRENT_SOURCE_DIR}/Communication/Network.cpp
-         ${CMAKE_CURRENT_SOURCE_DIR}/Communication/Usb.cpp)
+         ${CMAKE_CURRENT_SOURCE_DIR}/Server/server.cpp
+         ${CMAKE_CURRENT_SOURCE_DIR}/Communication/TcpIp.cpp
+         ${CMAKE_CURRENT_SOURCE_DIR}/Communication/Usb.cpp
+         ${CMAKE_CURRENT_SOURCE_DIR}/Configurators/TcpIpConfigurator.cpp)
 
 
 add_executable(${PROJECT_NAME} main.cpp ${SRCS})

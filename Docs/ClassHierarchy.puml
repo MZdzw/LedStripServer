@@ -1,0 +1,109 @@
+@startuml Class Hierarchy Diagram
+
+IProtocol <|-- UsbConfigurator
+IProtocol <|-- UsbConfiguratorMock
+IProtocol <|-- TcpIpConfigurator
+IProtocol <|-- TcpIpConfiguratorMock
+UsbConfigurator *-- Usb
+UsbConfiguratorMock *-- Usb
+TcpIpConfigurator *-- TcpIp
+TcpIpConfiguratorMock *-- TcpIp
+
+enum UsbModeE
+{
+    +UsbModeE::Blocking
+    +UsbModeE::NON_BLOCKING
+}
+
+struct TerminalInterfaceT
+{
+    termios settings
+    std::string devName
+    int serialPort
+}
+
+struct SocketInterfaceT
+{
+    +int portNumber;
+    +int socketFd;
+    +int clientSocketFd;
+    +bool clientConnected;
+    +sockaddr_in serverAddress;
+    +bool isConnected;
+}
+
+class IProtocol
+{
+    -std::string m_SendBuffer
+    -std::string m_ReceptionBuffer
+
+    +void Send()
+    +void Read()
+    ~const std::string& GetSendBuffer() const
+    ~const std::string& GetReceptionBuffer() const
+}
+
+class UsbConfigurator
+{
+    -TerminalInterface m_UsbData
+
+    +UsbConfigurator()
+    +void Send()
+    +void Read()
+    +void ChangeMode(UsbModeE mode)
+}
+
+class TcpIpConfigurator
+{
+    -SocketInterface m_TcpIpData
+
+    +TcpIpConfigurator()
+    +void Send()
+    +void Read()
+}
+
+class UsbConfiguratorMock
+{
+    +UsbConfiguratorMock()
+}
+
+class TcpIpConfiguratorMock
+{
+    +TcpIpConfiguratorMock()
+}
+
+class Usb
+{
+    -IProtocol& m_pUsbConf
+
+    +Usb()
+    +void Send()
+    +void Read()
+
+    +bool TranslateMsgToUsb(const std::string& tcpIpMsg)
+
+    +UsbSenderThread()
+    +UsbReaderThread()
+}
+
+class TcpIp
+{
+    -IProtocol& m_pTcpIpConf
+
+    +TcpIp()
+    +void Send()
+    +void Read()
+    +void ListenToConnections()
+    +TcpIpSenderThread()
+    +TcpIpReaderThread()
+}
+
+class Server
+{
+    -TcpIp& m_TcpIpConnection
+    -Usb& m_UsbConnection
+
+    +void ServerConnectionThread()
+    {static}+void ServerThread()
+}
+@enduml

@@ -1,38 +1,50 @@
 #pragma once
 #include <string>
-#include "Communication.hpp"
 #include <vector>
+#include "Protocol.hpp"
+#include "TerminalInterface.hpp"
 
-class Usb : public ICommunication
+enum class UsbModeE
 {
-public:
-    Usb() = delete;
-    Usb(std::string devName);
-    ~Usb()
-    {
-        if (m_SerialPort >= 0)
-        {
-            std::cout << "Closing the serial port\n";
-            close(m_SerialPort);
-            m_SerialPort = -1;
-        }
-    }
-
-    void Send(const std::string& data) override;
-    const std::string& Read() override;
-
-    const std::string& GetDevName() const;
-    void ChangeToNonBlocking();
-
-    bool TranslateMsgFromNetworkToUsb(std::vector<std::string>& vars);
-
-    static void ReceiverThread(Usb& obj);
-    static void SenderThread(Usb& obj);
-
-
-private:
-    std::string m_DevName;
-    int m_SerialPort;
-
+    BLOCKING, NONBLOCKING
 };
 
+class UsbConfigurator : public IProtocol
+{
+private:
+    TerminalInterfaceT m_UsbData;
+public:
+    UsbConfigurator(TerminalInterfaceT&& usbData)
+    : IProtocol(128), m_UsbData(usbData)
+    { }
+    ~UsbConfigurator()
+    { }
+
+    void Send() override;
+    void Read() override;
+
+    void ChangeMode(UsbModeE mode);
+};
+
+
+class Usb
+{
+    private:
+    IProtocol& m_UsbConf;
+public:
+    Usb(IProtocol& usbConf)
+    : m_UsbConf(usbConf)
+    { }
+    ~Usb()
+    { }
+
+    void Send();
+    void Read();
+
+    bool TranslateMsgToUsb(const std::string& tcpIpMsg);
+
+    void UsbSenderThread();
+    void UsbReaderThread();
+
+
+};

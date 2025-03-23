@@ -13,3 +13,13 @@ extern std::string g_SerialName;
 
 extern bool g_Session;
 
+#define MAX_NUM_OF_CLIENTS 2
+
+struct ServerAndTcpIpNotificationS
+{
+    std::mutex serverAndTcpIpMutex;
+    std::condition_variable serverAndTcpIpCv;
+};
+
+extern ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
+
