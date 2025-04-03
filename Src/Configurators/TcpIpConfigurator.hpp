@@ -6,6 +6,7 @@ class TcpIpConfigurator : public IProtocol
 {
 private:
     SocketInterfaceT m_TcpIpData;
+    int m_ElapsedTimeDiffReadSeconds;
 public:
     TcpIpConfigurator(SocketInterfaceT&& tcpIpData)
     : IProtocol(128), m_TcpIpData(tcpIpData)
@@ -15,6 +16,8 @@ public:
 
     void Send() override;
     void Read() override;
+    int GetElapsedTimeBetweenRead() const override;
+    bool IsConnected() const override;
 
     SocketInterfaceT& GetSocketInterface()
     {

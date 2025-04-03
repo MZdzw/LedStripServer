@@ -1,10 +1,5 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
 #include <iostream>
-#include <cstring>
-#include <chrono>
-
+#include <algorithm>
 #include "TcpIp.hpp"
 #include "Common.hpp"
 
@@ -16,6 +11,49 @@ void TcpIp::Send()
 void TcpIp::Read()
 {
     m_TcpIpConf.Read();
+    const int timeDiff = m_TcpIpConf.GetElapsedTimeBetweenRead();
+    if (timeDiff < 1)
+    {
+        m_ReceivedMessage += m_TcpIpConf.GetReceptionBuffer();
+        m_TriggerUsb = IsUsbTriggerMsg();
+    }
+    else
+    {
+        m_ReceivedMessage = "";
+        g_TcpIpAndUsbMsgs.clear();
+        m_ReceivedMessage = m_TcpIpConf.GetReceptionBuffer();
+        m_TriggerUsb = IsUsbTriggerMsg();
+    }
+}
+
+bool TcpIp::IsUsbTriggerMsg()
+{
+    std::vector<int> positions;
+    int pos = m_ReceivedMessage.find("A");
+    while (pos != std::string::npos)
+    {
+        positions.push_back(pos);
+        pos = m_ReceivedMessage.find("A", pos + 1);
+        if (pos == m_ReceivedMessage.size())
+        {
+            positions.push_back(pos);
+            break;
+        }
+    }
+    if (positions.size() >= 2)
+    {
+        // we got at least one pair
+        for (auto it = positions.begin(); it != positions.end() - 1; it++)
+        {
+            g_TcpIpAndUsbMsgs.push_back(m_ReceivedMessage.substr(*it, *(it + 1) - *it + 1));
+        }
+
+        m_ReceivedMessage = m_ReceivedMessage.substr(*(positions.end() - 1),
+                                                     m_ReceivedMessage.size() - *(positions.end() - 1));
+
+        return true;
+    }
+    return false;
 }
 
 void TcpIp::TcpIpSenderThread()
@@ -28,7 +66,7 @@ void TcpIp::TcpIpReaderThread(int connectionId)
     {
         Read();
 
-        if (m_TcpIpConf.GetReceptionBuffer() == "Disconnect")
+        if (!m_TcpIpConf.IsConnected())
         {
             serverAndTcpIpNotification[connectionId].serverAndTcpIpCv.notify_one();
             break;

@@ -24,12 +24,12 @@ set(PROD_INCS    ${CMAKE_SOURCE_DIR}/Src/Communication/
                  ${CMAKE_SOURCE_DIR}/Src/Common/
                  ${CMAKE_SOURCE_DIR}/Src/Interface/)
 set(PROD_SRCS    ${CMAKE_SOURCE_DIR}/Src/Communication/TcpIp.cpp)
-# set(MOCK_INCS    ${CMAKE_SOURCE_DIR}/Tests)
+set(MOCK_INCS    ${CMAKE_SOURCE_DIR}/Tests/Mocks/)
 
-add_executable(Test_TcpIp ${TEST_SRCS})
+add_executable(Test_TcpIp ${TEST_SRCS} ${PROD_SRCS})
 
 target_compile_definitions(Test_TcpIp PRIVATE TESTING=1)
-target_include_directories(Test_TcpIp PRIVATE ${PROD_INCS})
+target_include_directories(Test_TcpIp PRIVATE ${PROD_INCS} ${MOCK_INCS})
 
 target_link_libraries(Test_TcpIp PRIVATE
                       GTest::gmock

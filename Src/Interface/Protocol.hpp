@@ -16,6 +16,8 @@ public:
 
     virtual void Send() = 0;
     virtual void Read() = 0;
+    virtual int GetElapsedTimeBetweenRead() const = 0;
+    virtual bool IsConnected() const = 0;
 
     std::string& GetSendBuffer()
     {

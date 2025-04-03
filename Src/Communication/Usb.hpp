@@ -22,6 +22,8 @@ public:
 
     void Send() override;
     void Read() override;
+    int GetElapsedTimeBetweenRead() const override;
+    bool IsConnected() const override;
 
     void ChangeMode(UsbModeE mode);
 };

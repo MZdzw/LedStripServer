@@ -26,10 +26,21 @@ void TcpIpConfigurator::Read()
         // The connection is probably closed
         // Inform Server thread about that
         m_TcpIpData.clientConnected = false;
-        GetReceptionBuffer() = "Disconnect";
         return;
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "Elapsed time: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
+    m_ElapsedTimeDiffReadSeconds = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
+    std::cout << "Elapsed time: " << m_ElapsedTimeDiffReadSeconds << "[s]" << std::endl;
     GetReceptionBuffer() = std::string(GetReceptionBuffer().data());
+}
+
+int TcpIpConfigurator::GetElapsedTimeBetweenRead() const
+{
+    return m_ElapsedTimeDiffReadSeconds;
+}
+
+bool TcpIpConfigurator::IsConnected() const
+{
+    return m_TcpIpData.clientConnected;
 }

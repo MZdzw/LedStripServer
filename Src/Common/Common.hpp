@@ -2,16 +2,9 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+#include <vector>
 
-extern std::mutex g_Mutex;
-extern std::condition_variable g_Cv;
-extern std::string g_Msg;
-
-extern std::string g_MsgToClose;
-extern int g_PortNumber;
-extern std::string g_SerialName;
-
-extern bool g_Session;
+inline std::vector<std::string> g_TcpIpAndUsbMsgs;
 
 #define MAX_NUM_OF_CLIENTS 2
 

@@ -385,6 +385,17 @@ void UsbConfigurator::Read()
     GetReceptionBuffer() = std::string(buffer, 128);
 }
 
+int UsbConfigurator::GetElapsedTimeBetweenRead() const
+{
+    return 0;
+}
+
+bool UsbConfigurator::IsConnected() const
+{
+    // TODO: proper return
+    return false;
+}
+
 void UsbConfigurator::ChangeMode(UsbModeE mode)
 {
     if (mode == UsbModeE::NONBLOCKING)
