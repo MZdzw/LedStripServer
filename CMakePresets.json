@@ -48,6 +48,16 @@
             "name": "Tests-Release",
             "inherits": [ "Tests-Base" ],
             "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+        },
+        {
+            "name": "Tests-Debug-Coverage",
+            "inherits": [ "Tests-Base" ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "ENABLE_COVERAGE": "ON"
+         }
         }
     ]
 }

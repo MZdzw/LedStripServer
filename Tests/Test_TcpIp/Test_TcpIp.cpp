@@ -23,6 +23,7 @@ TEST(TcpIpReader_Suite, TcpIpReadMethodIsCalled)
     TcpIp tcpIpObj(tcpIpConfMock);
 
     EXPECT_CALL(tcpIpConfMock, Read()).Times(1);
+    EXPECT_CALL(tcpIpConfMock, GetElapsedTimeBetweenRead()).Times(1);
 
     tcpIpObj.Read();
 }
@@ -33,9 +34,10 @@ TEST(TcpIpReader_Suite, TcpIpReadProperReceptionBuffer)
     TcpIpConfiguratorMock tcpIpConfMock;
     TcpIp tcpIpObj(tcpIpConfMock);
 
-    ON_CALL(tcpIpConfMock, Read()).WillByDefault(::testing::Invoke([&tcpIpConfMock](){
+    EXPECT_CALL(tcpIpConfMock, Read()).WillOnce(::testing::Invoke([&tcpIpConfMock](){
         tcpIpConfMock.GetReceptionBuffer() = "Check if buffer is set";
     }));
+    EXPECT_CALL(tcpIpConfMock, GetElapsedTimeBetweenRead()).Times(1);
 
     tcpIpObj.Read();
 
@@ -48,9 +50,10 @@ TEST(TcpIpReader_Suite, TcpIpReadAppendToReceivedMessage)
     TcpIpConfiguratorMock tcpIpConfMock;
     TcpIp tcpIpObj(tcpIpConfMock);
 
-    ON_CALL(tcpIpConfMock, Read()).WillByDefault(::testing::Invoke([&tcpIpConfMock](){
+    EXPECT_CALL(tcpIpConfMock, Read()).WillOnce(::testing::Invoke([&tcpIpConfMock](){
         tcpIpConfMock.GetReceptionBuffer() = "Appended msg";
     }));
+    EXPECT_CALL(tcpIpConfMock, GetElapsedTimeBetweenRead()).Times(1);
 
     tcpIpObj.Read();
 
@@ -117,7 +120,7 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsb)
     tcpIpObj.Read();
 
     ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
-    ASSERT_STREQ((*g_TcpIpAndUsbMsgs.begin()).c_str(), "A-whatever-A");
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-whatever-A");
     // remain last A in case if it will be starting new trigger message
     ASSERT_STREQ(tcpIpObj.GetReceivedMsg().c_str(), "A");
 }
@@ -125,7 +128,7 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsb)
 // TEST8: Read over tcpIp. The message contains USB notification tag
 TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbTwoMsgs)
 {
-    g_TcpIpAndUsbMsgs.clear();
+    ClearQueue(g_TcpIpAndUsbMsgs);
     TcpIpConfiguratorMock tcpIpConfMock;
     TcpIp tcpIpObj(tcpIpConfMock);
 
@@ -144,17 +147,21 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbTwoMsgs)
     tcpIpObj.Read();
 
     ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
-    ASSERT_STREQ((*g_TcpIpAndUsbMsgs.begin()).c_str(), "A-whatever-A");
-    ASSERT_STREQ((*(g_TcpIpAndUsbMsgs.begin() + 1)).c_str(), "ASPA");
-    ASSERT_STREQ((*(g_TcpIpAndUsbMsgs.begin() + 2)).c_str(), "ACEA");
-    ASSERT_STREQ((*(g_TcpIpAndUsbMsgs.begin() + 3)).c_str(), "A-second-A");
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-whatever-A");
+    g_TcpIpAndUsbMsgs.pop();
+    ASSERT_STREQ(((g_TcpIpAndUsbMsgs.front())).c_str(), "ASPA");
+    g_TcpIpAndUsbMsgs.pop();
+    ASSERT_STREQ(((g_TcpIpAndUsbMsgs.front())).c_str(), "ACEA");
+    g_TcpIpAndUsbMsgs.pop();
+    ASSERT_STREQ(((g_TcpIpAndUsbMsgs.front())).c_str(), "A-second-A");
+    g_TcpIpAndUsbMsgs.pop();
     ASSERT_STREQ(tcpIpObj.GetReceivedMsg().c_str(), "A");
 }
 
 // TEST9: Read over tcpIp. Messages comes after some time
 TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbFirstMsgAfterSomeTime)
 {
-    g_TcpIpAndUsbMsgs.clear();
+    ClearQueue(g_TcpIpAndUsbMsgs);
     TcpIpConfiguratorMock tcpIpConfMock;
     TcpIp tcpIpObj(tcpIpConfMock);
 
@@ -166,7 +173,7 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbFirstMsgAfterSomeTime)
     tcpIpObj.Read();
 
     ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
-    ASSERT_STREQ((*g_TcpIpAndUsbMsgs.begin()).c_str(), "A-whatever-A");
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-whatever-A");
 
     EXPECT_CALL(tcpIpConfMock, Read()).WillOnce(::testing::Invoke([&tcpIpConfMock](){
         tcpIpConfMock.GetReceptionBuffer() = "A-secondWhatever-A";
@@ -176,5 +183,5 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbFirstMsgAfterSomeTime)
     tcpIpObj.Read();
 
     ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
-    ASSERT_STREQ((*g_TcpIpAndUsbMsgs.begin()).c_str(), "A-secondWhatever-A");
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-secondWhatever-A");
 }

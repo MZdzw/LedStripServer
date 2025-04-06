@@ -2,9 +2,9 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
-#include <vector>
+#include <queue>
 
-inline std::vector<std::string> g_TcpIpAndUsbMsgs;
+inline std::queue<std::string> g_TcpIpAndUsbMsgs;
 
 #define MAX_NUM_OF_CLIENTS 2
 
@@ -16,3 +16,9 @@ struct ServerAndTcpIpNotificationS
 
 extern ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
 
+template <typename T>
+void ClearQueue(std::queue<T>& queue)
+{
+    std::queue<T> empty;
+    std::swap(queue, empty);
+}

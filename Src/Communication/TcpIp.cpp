@@ -20,7 +20,7 @@ void TcpIp::Read()
     else
     {
         m_ReceivedMessage = "";
-        g_TcpIpAndUsbMsgs.clear();
+        ClearQueue(g_TcpIpAndUsbMsgs);
         m_ReceivedMessage = m_TcpIpConf.GetReceptionBuffer();
         m_TriggerUsb = IsUsbTriggerMsg();
     }
@@ -34,18 +34,13 @@ bool TcpIp::IsUsbTriggerMsg()
     {
         positions.push_back(pos);
         pos = m_ReceivedMessage.find("A", pos + 1);
-        if (pos == m_ReceivedMessage.size())
-        {
-            positions.push_back(pos);
-            break;
-        }
     }
     if (positions.size() >= 2)
     {
         // we got at least one pair
         for (auto it = positions.begin(); it != positions.end() - 1; it++)
         {
-            g_TcpIpAndUsbMsgs.push_back(m_ReceivedMessage.substr(*it, *(it + 1) - *it + 1));
+            g_TcpIpAndUsbMsgs.push(m_ReceivedMessage.substr(*it, *(it + 1) - *it + 1));
         }
 
         m_ReceivedMessage = m_ReceivedMessage.substr(*(positions.end() - 1),

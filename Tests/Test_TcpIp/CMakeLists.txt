@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_FLAGS_DEBUG   "-g3 -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-g0 -O3")
 
+if(ENABLE_COVERAGE)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -coverage -fno-exceptions")
+endif()
+
 set(CXX_WARNINGS "-Wall -Wextra")
 
 include(FetchContent)
