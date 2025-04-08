@@ -9,6 +9,7 @@ struct TerminalInterfaceT
     termios settings;
     std::string devName;
     int serialPort;
+    bool isConnected;
 
     TerminalInterfaceT()
     {
@@ -54,5 +55,6 @@ struct TerminalInterfaceT
             std::cout << "Terminal parameters not set." << std::endl;
             return;
         }
+        isConnected = true;
     }
 };

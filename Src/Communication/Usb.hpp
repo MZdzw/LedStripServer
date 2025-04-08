@@ -2,37 +2,12 @@
 #include <string>
 #include <vector>
 #include "Protocol.hpp"
-#include "TerminalInterface.hpp"
-
-enum class UsbModeE
-{
-    BLOCKING, NONBLOCKING
-};
-
-class UsbConfigurator : public IProtocol
-{
-private:
-    TerminalInterfaceT m_UsbData;
-public:
-    UsbConfigurator(TerminalInterfaceT&& usbData)
-    : IProtocol(128), m_UsbData(usbData)
-    { }
-    ~UsbConfigurator()
-    { }
-
-    void Send() override;
-    void Read() override;
-    int GetElapsedTimeBetweenRead() const override;
-    bool IsConnected() const override;
-
-    void ChangeMode(UsbModeE mode);
-};
-
 
 class Usb
 {
     private:
     IProtocol& m_UsbConf;
+    std::string m_ReceivedMsg;
 public:
     Usb(IProtocol& usbConf)
     : m_UsbConf(usbConf)
@@ -44,6 +19,11 @@ public:
     void Read();
 
     bool TranslateMsgToUsb(const std::string& tcpIpMsg);
+
+    std::string GetReceivedMsg() const
+    {
+        return m_ReceivedMsg;
+    }
 
     void UsbSenderThread();
     void UsbReaderThread();

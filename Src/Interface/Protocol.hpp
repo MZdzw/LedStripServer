@@ -3,14 +3,18 @@
 
 class IProtocol
 {
-private:
+protected:
     std::string m_SendBuffer;
     std::string m_ReceptionBuffer;
+    size_t m_ReceivedBytes;
+    size_t m_SendBytes;
 
 public:
     IProtocol(size_t size)
     : m_SendBuffer(std::string(size, '\0')),
-      m_ReceptionBuffer(std::string(size, '\0'))
+      m_ReceptionBuffer(std::string(size, '\0')),
+      m_ReceivedBytes(0),
+      m_SendBytes(0)
     { }
     virtual ~IProtocol() { }
 
@@ -27,5 +31,15 @@ public:
     std::string& GetReceptionBuffer()
     {
         return m_ReceptionBuffer;
+    }
+
+    size_t& GetReceivedBytes()
+    {
+        return m_ReceivedBytes;
+    }
+
+    size_t& GetSendBytes()
+    {
+        return m_SendBytes;
     }
 };

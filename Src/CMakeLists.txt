@@ -18,7 +18,8 @@ set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/Peripherals/Gpio.cpp
          ${CMAKE_CURRENT_SOURCE_DIR}/Server/server.cpp
          ${CMAKE_CURRENT_SOURCE_DIR}/Communication/TcpIp.cpp
          ${CMAKE_CURRENT_SOURCE_DIR}/Communication/Usb.cpp
-         ${CMAKE_CURRENT_SOURCE_DIR}/Configurators/TcpIpConfigurator.cpp)
+         ${CMAKE_CURRENT_SOURCE_DIR}/Configurators/TcpIpConfigurator.cpp
+         ${CMAKE_CURRENT_SOURCE_DIR}/Configurators/UsbConfigurator.cpp)
 
 
 add_executable(${PROJECT_NAME} main.cpp ${SRCS})

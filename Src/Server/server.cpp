@@ -6,6 +6,7 @@
 #include <cstring>
 #include "server.hpp"
 #include "TcpIpConfigurator.hpp"
+#include "UsbConfigurator.hpp"
 #include "Common.hpp"
 
 ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
