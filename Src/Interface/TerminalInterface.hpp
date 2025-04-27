@@ -13,7 +13,7 @@ struct TerminalInterfaceT
 
     TerminalInterfaceT()
     {
-        serialPort =open("/settings/ACM0", O_RDWR);
+        serialPort = open("/dev/ttyACM0", O_RDWR);
         if (serialPort < 0)
         {
             std::cout << "Serial port not opened." << std::endl;

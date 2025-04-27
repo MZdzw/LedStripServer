@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 
+enum class ModeE
+{
+    BLOCKING, NONBLOCKING
+};
+
 class IProtocol
 {
 protected:
@@ -22,6 +27,7 @@ public:
     virtual void Read() = 0;
     virtual int GetElapsedTimeBetweenRead() const = 0;
     virtual bool IsConnected() const = 0;
+    virtual void ChangeMode(ModeE mode) = 0;
 
     std::string& GetSendBuffer()
     {

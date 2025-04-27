@@ -10,6 +10,7 @@
 #include "Common.hpp"
 
 ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
+TcpIpAndUsbNotificationS tcpIpAndUsbNotification;
 std::array<in_addr_t, MAX_NUM_OF_CLIENTS> addresesOfConnectedClients;
 
 void Server::ResetClientData()
@@ -52,6 +53,8 @@ void Server::ConnectionManager()
             addresesOfConnectedClients[m_Id] = conf.clientAddress.sin_addr.s_addr;
             conf.clientConnected = true;
             std::thread rcvThr(&TcpIp::TcpIpReaderThread, std::ref(this->m_TcpIpConnection), m_Id);
+            std::thread sndThr(&Usb::UsbSenderThread, std::ref(this->m_UsbConnection));
+            std::thread reaThr(&Usb::UsbReaderThread, std::ref(this->m_UsbConnection));
             // threads.push_back(std::make_tuple<std::thread, std::thread>(
             //           std::thread(&TcpIp::TcpIpReaderThread, std::ref(this->m_TcpIpConnection)),
             //           std::thread(&TcpIp::TcpIpSenderThread, std::ref(this->m_TcpIpConnection)),
@@ -65,6 +68,8 @@ void Server::ConnectionManager()
             ResetClientData();
             addresesOfConnectedClients[m_Id] = 0;
             rcvThr.join();
+            sndThr.join();
+            reaThr.join();
         }
         
     }

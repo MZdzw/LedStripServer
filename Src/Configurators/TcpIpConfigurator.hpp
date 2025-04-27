@@ -18,6 +18,7 @@ public:
     void Read() override;
     int GetElapsedTimeBetweenRead() const override;
     bool IsConnected() const override;
+    void ChangeMode(ModeE mode) override;
 
     SocketInterfaceT& GetSocketInterface()
     {

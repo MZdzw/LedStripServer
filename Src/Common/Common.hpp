@@ -14,7 +14,15 @@ struct ServerAndTcpIpNotificationS
     std::condition_variable serverAndTcpIpCv;
 };
 
+struct TcpIpAndUsbNotificationS
+{
+    std::mutex tcpIpAndUsbMutex;
+    std::condition_variable tcpIpAndUsbCv;
+    bool isDisconnected;
+};
+
 extern ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
+extern TcpIpAndUsbNotificationS tcpIpAndUsbNotification;
 
 template <typename T>
 void ClearQueue(std::queue<T>& queue)

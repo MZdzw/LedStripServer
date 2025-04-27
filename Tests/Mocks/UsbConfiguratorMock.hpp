@@ -12,4 +12,5 @@ struct UsbConfiguratorMock : public IProtocol
     MOCK_METHOD(void, Send, (), (override));
     MOCK_METHOD(int, GetElapsedTimeBetweenRead, (), (const, override));
     MOCK_METHOD(bool, IsConnected, (), (const, override));
+    MOCK_METHOD(void, ChangeMode, (ModeE), (override));
 };

@@ -8,6 +8,7 @@ class Usb
     private:
     IProtocol& m_UsbConf;
     std::string m_ReceivedMsg;
+    std::string m_SendMsg;
 public:
     Usb(IProtocol& usbConf)
     : m_UsbConf(usbConf)
@@ -18,11 +19,15 @@ public:
     void Send();
     void Read();
 
-    bool TranslateMsgToUsb(const std::string& tcpIpMsg);
+    std::pair<std::string, bool> TranslateMsgToUsb(const std::string& tcpIpMsg);
 
     std::string GetReceivedMsg() const
     {
         return m_ReceivedMsg;
+    }
+    const std::string& GetSendMsg() const
+    {
+        return m_SendMsg;
     }
 
     void UsbSenderThread();

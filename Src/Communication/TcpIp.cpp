@@ -40,7 +40,9 @@ bool TcpIp::IsUsbTriggerMsg()
         // we got at least one pair
         for (auto it = positions.begin(); it != positions.end() - 1; it++)
         {
-            g_TcpIpAndUsbMsgs.push(m_ReceivedMessage.substr(*it, *(it + 1) - *it + 1));
+            // we got pair, but we need to check if the A are not one after another
+            if (*(it + 1) - *it > 1)
+                g_TcpIpAndUsbMsgs.push(m_ReceivedMessage.substr(*it, *(it + 1) - *it + 1));
         }
 
         m_ReceivedMessage = m_ReceivedMessage.substr(*(positions.end() - 1),
@@ -63,12 +65,19 @@ void TcpIp::TcpIpReaderThread(int connectionId)
 
         if (!m_TcpIpConf.IsConnected())
         {
+            tcpIpAndUsbNotification.isDisconnected = true;
+            tcpIpAndUsbNotification.tcpIpAndUsbCv.notify_one();
             serverAndTcpIpNotification[connectionId].serverAndTcpIpCv.notify_one();
             break;
         }
         else
         {
-            std::cout << m_TcpIpConf.GetReceptionBuffer() << std::endl;
+            // We should first check if it's the message for USB
+            // If so, notify USB
+            if (m_TriggerUsb == true)
+            {
+                tcpIpAndUsbNotification.tcpIpAndUsbCv.notify_one();
+            }
         }
     }
 }

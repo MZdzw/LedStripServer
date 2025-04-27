@@ -4,6 +4,7 @@
 #include "TcpIpConfiguratorMock.hpp"
 
 ServerAndTcpIpNotificationS serverAndTcpIpNotification[MAX_NUM_OF_CLIENTS];
+TcpIpAndUsbNotificationS tcpIpAndUsbNotification;
 // TcpIpReader_Suite
 
 // TEST1: Creation of TcpIp object is succesfull
@@ -184,4 +185,40 @@ TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbFirstMsgAfterSomeTime)
 
     ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
     ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-secondWhatever-A");
+}
+
+// TEST10: Read over tcpIp. The message contains USB message and within one sec we got next message
+TEST(TcpIpReader_Suite, TcpIpReadTriggerUsbConsecutiveMsgs)
+{
+    ClearQueue(g_TcpIpAndUsbMsgs);
+    TcpIpConfiguratorMock tcpIpConfMock;
+    TcpIp tcpIpObj(tcpIpConfMock);
+
+    EXPECT_CALL(tcpIpConfMock, Read()).WillOnce(::testing::Invoke([&tcpIpConfMock](){
+        tcpIpConfMock.GetReceptionBuffer() = "A-0-0-A";
+    }));
+    EXPECT_CALL(tcpIpConfMock, GetElapsedTimeBetweenRead()).Times(1).WillOnce(::testing::Return(2));
+
+    tcpIpObj.Read();
+
+    ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-0-0-A");
+    // remain last A in case if it will be starting new trigger message
+    ASSERT_STREQ(tcpIpObj.GetReceivedMsg().c_str(), "A");
+
+
+    EXPECT_CALL(tcpIpConfMock, Read()).WillOnce(::testing::Invoke([&tcpIpConfMock](){
+        tcpIpConfMock.GetReceptionBuffer() = "A-1-0-0-1-0-10-A";
+    }));
+    // no delay between this message and the previous one
+    EXPECT_CALL(tcpIpConfMock, GetElapsedTimeBetweenRead()).Times(1).WillOnce(::testing::Return(0));
+    // previous message in queue should be popped by USB
+    g_TcpIpAndUsbMsgs.pop();
+
+    tcpIpObj.Read();
+
+    ASSERT_EQ(tcpIpObj.GetTriggerUsb(), true);
+    ASSERT_STREQ((g_TcpIpAndUsbMsgs.front()).c_str(), "A-1-0-0-1-0-10-A");
+    // remain last A in case if it will be starting new trigger message
+    ASSERT_STREQ(tcpIpObj.GetReceivedMsg().c_str(), "A");
 }

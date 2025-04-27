@@ -8,7 +8,6 @@
 
 void TcpIpConfigurator::Send()
 {
-    std::cout << "Sending the data...\n";
     write(m_TcpIpData.clientSocketFd,
           GetSendBuffer().c_str(),
           GetSendBuffer().length());
@@ -29,9 +28,7 @@ void TcpIpConfigurator::Read()
         return;
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Elapsed time: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
     m_ElapsedTimeDiffReadSeconds = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
-    std::cout << "Elapsed time: " << m_ElapsedTimeDiffReadSeconds << "[s]" << std::endl;
     GetReceptionBuffer() = std::string(GetReceptionBuffer().data());
 }
 
@@ -43,4 +40,8 @@ int TcpIpConfigurator::GetElapsedTimeBetweenRead() const
 bool TcpIpConfigurator::IsConnected() const
 {
     return m_TcpIpData.clientConnected;
+}
+
+void TcpIpConfigurator::ChangeMode(ModeE mode)
+{
 }
